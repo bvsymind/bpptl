@@ -17,6 +17,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "drive.google.com",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "wkxjpaanpxruogugvpgq.supabase.co",
+        port: "",
+        pathname: "/storage/v1/object/public/**"
+      },
+      {
+        protocol: "https",
         hostname: "elektro.ft.undip.ac.id",
         port: "",
         pathname: "/**"

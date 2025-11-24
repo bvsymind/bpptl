@@ -1,102 +1,19 @@
-// const OurTeam = () => {
-//   const { language } = useLanguage();
-//   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-//   const [modalOpen, setModalOpen] = useState(false);
+## Our Team Page
 
-//   const handleMemberClick = (member: TeamMember) => {
-//     setSelectedMember(member);
-//     setModalOpen(true);
-//   };
-
-//   return (
-//     <div className="py-16">
-//       <div className="container mx-auto px-4">
-//         {/* Lecturer Section */}
-//         <section className="mb-20">
-//           <h1 className="text-4xl font-bold mb-8">
-//             {language === "en" ? "Research Lecturer" : "Dosen Peneliti"}
-//           </h1>
-//           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-//             {mockLecturer.map((member) => (
-//               <TeamMemberCard
-//                 key={member.id}
-//                 member={member}
-//                 onClick={() => handleMemberClick(member)}
-//               />
-//             ))}
-//           </div>
-//         </section>
-//         {/* Staff Section */}
-//         <section className="mb-20">
-//           <h1 className="text-4xl font-bold mb-8">
-//             {language === "en" ? "Laboratory Staff" : "Staf Laboratorium"}
-//           </h1>
-//           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-//             {mockStaff.map((member) => (
-//               <TeamMemberCard
-//                 key={member.id}
-//                 member={member}
-//                 onClick={() => handleMemberClick(member)}
-//               />
-//             ))}
-//           </div>
-//         </section>
-
-//         {/* Student Organization Section */}
-//         <section>
-//           <h2 className="text-4xl font-bold mb-4">
-//             {language === "en" ? "Student Organization" : "Organisasi Mahasiswa"}
-//           </h2>
-//           <h2 className="text-2xl font-bold mb-4">
-//             {language === "en" ? "Executive Board" : "Badan Pengurus Harian"}
-//           </h2>
-//           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-//             {mockStudents.filter((member) => member.division === "Executive Board").map((member) => (
-//               <TeamMemberCard
-//                 key={member.id}
-//                 member={member}
-//                 onClick={() => handleMemberClick(member)}
-//               />
-//             ))}
-//           </div>
-//           <h2 className="text-2xl font-bold mb-4 mt-8">
-//             {language === "en" ? "Laboratory Division" : "Divisi Laboratorium"}
-//           </h2>
-//           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-//             {mockStudents.filter((member) => member.division === "Laboratory Division").map((member) => (
-//               <TeamMemberCard
-//                 key={member.id}
-//                 member={member}
-//                 onClick={() => handleMemberClick(member)}
-//               />
-//             ))}
-//           </div>
-//         </section>
-//       </div>
-
-//       <TeamMemberModal
-//         member={selectedMember}
-//         open={modalOpen}
-//         onOpenChange={setModalOpen}
-//       />
-//     </div>
-//   );
-// };
-
-// export default OurTeam;
-
-
-
+### Staff
 const mockStaff: TeamMember[] = [
   {
     id: "2",
     name: "Muammar Nizar Pahlevi, S.T.",
     role: "Laboratory Technician",
-    image: "https://elektro.ft.undip.ac.id/v3/wp-content/uploads/2020/07/laboran2.jpeg",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1Nm9yMmePupUoxKBj82-TG6GwqmXIQAU0/view"),
     description: "Specialist in laboratory equipment and experimental setup.",
     email: "michael.chen@lab.edu",
   },
 ];
+
+
+### Lecturer
 const mockLecturer: TeamMember[] = [
   {
     id: "1",
@@ -148,7 +65,7 @@ const mockLecturer: TeamMember[] = [
   },
   {
     id: "7",
-    name: "	Alfia Putri Wulandari, S.T.,M.T.",
+    name: " Alfia Putri Wulandari, S.T.,M.T.",
     role: "Research Lecturer",
     image: "https://elektro.ft.undip.ac.id/v3/wp-content/uploads/2024/09/alfiaputri-modified.png",
     description: "Sistem Tenaga Listrik",
@@ -156,7 +73,8 @@ const mockLecturer: TeamMember[] = [
   },
 ];
 
-const mockStudents: TeamMember[] = [
+### students
+const mockStudentsData: any[] = [
   // Executive Board
   {
     id: "s1",
@@ -165,7 +83,8 @@ const mockStudents: TeamMember[] = [
     division: "Executive Board",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1OfOKb3MXQ0LGMnCuOMPdOrsJrEPeZAYB/view"),  
     nim: 21060122120024,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s2",
@@ -174,16 +93,18 @@ const mockStudents: TeamMember[] = [
     division: "Executive Board",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1z4O1Ei00xt0IAhhSh8O8bWWYDYd46QFj/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s3",
-    name: "Rahma",
+    name: "Siti Fajria Rahmawati",
     role: "Secretary",
     division: "Executive Board",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1KN9PHMIVcqeUMLNT7i7I9AoeWiNh2EkI/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s4",
@@ -192,7 +113,8 @@ const mockStudents: TeamMember[] = [
     division: "Executive Board",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1Q896UmVKH3Fhnd1KyzMSmjVzrfvYdivp/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   // Laboratory Division
   {
@@ -202,7 +124,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1--sqn9P4oGIAsTPlL-mhkimsLwGXlEyL/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s6",
@@ -211,7 +134,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1cZg9kbbpsiIXxHPE9VOTALkCeTD6uQRh/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s7",
@@ -220,7 +144,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1e0KanDzv852RYl5gTtLOdcJBZ1XJkGf7/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s8",
@@ -229,7 +154,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1JmxQlLP8od0ANYobKbrwkhdE4xo_ue4b/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s9",
@@ -238,7 +164,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1KGAOfA-2xBVZ29JTnVwgqhkiZI6fthru/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s10",
@@ -247,7 +174,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1cbwfL8PdcI1rH7A7zd_wyGNCWbV3K08e/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s11",
@@ -256,7 +184,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1KEd45hvhRaD3xpPpxJhNATxS_4xqu5yX/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s12",
@@ -265,7 +194,8 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1VrwbQotrpt9qm7I6YwtbLIvvcAodRWLi/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
   {
     id: "s13",
@@ -274,6 +204,321 @@ const mockStudents: TeamMember[] = [
     division: "Laboratory Division",
     image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1a9x-lHv44CDro4vuFRU2GVAtt51-roIZ/view"),
     nim: 21060122120014,
-    email: "brianfari@students.undip.ac.id"
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  {
+    id: "s14",
+    name: "Faiq Hanif Taufiqul Hafizh",
+    role: "Member of Laboratory Division",
+    division: "Laboratory Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1RiOdwBpW7kpEpk1A9eCJFyhJYBfNYITt/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  {
+    id: "s15",
+    name: "Hardiwinata Muhammad Massa",
+    role: "Member of Laboratory Division",
+    division: "Laboratory Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1Jb2NHVun0xKlhuqKVwXGPbZMpOp1bwqp/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  {
+    id: "s16",
+    name: "Saniyya Aini Kholda",
+    role: "Member of Laboratory Division",
+    division: "Laboratory Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1507061YTk_gdzJLgolsaVseTbYlucB2s/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  // Media Division
+  {
+    id: "s17",
+    name: "Syamriza Wiguna",
+    role: "Head of Media Division",
+    division: "Media Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/18R209xubeHZ5SilxwsxNHp4w_MmGuqO0/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  {
+    id: "s18",
+    name: "Wisnu Adi Wicaksono",
+    role: "Deputy Head of Media Division",
+    division: "Media Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1kFPYz9mPXZVyD1JlynmmQTYv7Y3-4b0A/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  {
+    id: "s19",
+    name: "Ferrel Gamma Putranto",
+    role: "Member of Media Division",
+    division: "Media Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1kFPYz9mPXZVyD1JlynmmQTYv7Y3-4b0A/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
+  },
+  {
+    id: "s20",
+    name: "Ferrel Gamma Putranto",
+    role: "Member of Media Division",
+    division: "Media Division",
+    image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1kFPYz9mPXZVyD1JlynmmQTYv7Y3-4b0A/view"),
+    nim: 21060122120014,
+    email: "brianfari@students.undip.ac.id",
+    year: 2025
   },
 ];
+
+const mockStudents2024: any[] = [
+    {
+        id: "old1",
+        name: "Alumni 2024 A",
+        role: "Chairman 2024",
+        division: "Executive Board",
+        image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1kFPYz9mPXZVyD1JlynmmQTYv7Y3-4b0A/view"),
+        nim: 21060122120000,
+        email: "alumni@students.undip.ac.id",
+        year: 2024
+    },
+    {
+        id: "old2",
+        name: "Alumni 2024 B",
+        role: "Head Media 2024",
+        division: "Media Division",
+        image: getGoogleDriveImageUrl("https://drive.google.com/file/d/1kFPYz9mPXZVyD1JlynmmQTYv7Y3-4b0A/view"),
+        nim: 21060122120001,
+        email: "alumni@students.undip.ac.id",
+        year: 2024
+    }
+];
+
+// GABUNGKAN SEMUA DATA
+const mockStudents: TeamMember[] = [...mockStudentsData, ...mockStudents2024];
+
+## Resource Page
+  const { language } = useLanguage();
+
+  const courses = [
+    {
+      code: "PTEL6124",
+      name: language === "en" ? "Electrical Physics" : "Fisika Listrik",
+      modules: [
+        {
+          title: "Module 1: Basics",
+          url_download: "https://drive.usercontent.google.com/download?id=1sUOnkBA8NFNxBGYtj1wNMfa8uhdQxHdI&export=download&authuser=0",
+          url_view: "https://drive.google.com/file/d/1sUOnkBA8NFNxBGYtj1wNMfa8uhdQxHdI/view"
+        },
+        { title: "Module 2: Control Structures",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Functions",
+          url_download: "#",
+          url_view: "#"
+        }
+      ],
+    },
+    {
+      code: "PTEL6302",
+      name: language === "en" ? "Basic Power System" : "Dasar Tenaga Listrik",
+      modules: [
+        {
+          title: "Module 1: Arrays and Lists",
+          url_download: "#",
+          url_view: "#"
+        },
+        {
+          title: "Module 2: Trees and Graphs",
+          url_download: "#",
+          url_view: "#"
+        },
+        {
+          title: "Module 3: Algorithms",
+          url_download: "#",
+          url_view: "#"
+        },
+      ],
+    },
+    {
+      code: "PTEL6307",
+      name: language === "en" ? "High Voltage Equipment and Engineering" : "Teknik dan Peralatan Tegangan Tinggi",
+      modules: [
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
+      ],
+    },
+    {
+      code: "PTEL6309",
+      name: language === "en" ? "Illumination and Utilities Installation" : "Instalasi Pemanfaatan Tenaga Listrik dan Iluminasi",
+      modules: [
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
+      ],
+    },
+    {
+      code: "PTEL6311",
+      name: language === "en" ? "Electrical Machines" : "Mesin-Mesin Listrik",
+      modules: [
+        { title: language === "en" ? "Module 1: Single Phase Transformer" : "Modul 1: Trafo 1 Fasa",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 2: Three Phase Transformer" : "Modul 2: Trafo 3 Fasa",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 3: DC Generator" : "Modul 3: Generator DC",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 4: DC Motor" : "Modul 4: Motor DC",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 5: Induction Motor" : "Modul 5: Motor Induksi",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 6: Asynchronous Generator" : "Modul 6: Generator Asinkron",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 7: Synchronous Generator" : "Modul 7: Generator Sinkron",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: language === "en" ? "Module 8: Synchronous Motor" : "Modul 7: Motor Sinkron",
+          url_download: "#",
+          url_view: "#"
+        },
+      ],
+    },
+    {
+      code: "PTEL6313",
+      name: language === "en" ? "Power Electronics Drive and Converter" : "Konverter dan Pengumudian Elektronika Daya",
+      modules: [
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
+      ],
+    },
+    {
+      code: "PTEL6315",
+      name: language === "en" ? "Analysis of Power System, Protection and Grounding" : "Sistem, Proteksi dan Pembumian Sistem Tenaga",
+      modules: [
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
+      ],
+    },
+  ];
+
+## Practicums Page
+    const { language } = useLanguage();
+
+  const practicums = [
+    {
+      code: "LAB101",
+      name: language === "en" ? "Introduction to Research Methods" : "Pengantar Metode Penelitian",
+      semester: "1",
+      credits: "3",
+    },
+    {
+      code: "LAB201",
+      name: language === "en" ? "Advanced Laboratory Techniques" : "Teknik Laboratorium Lanjutan",
+      semester: "2",
+      credits: "4",
+    },
+    {
+      code: "LAB301",
+      name: language === "en" ? "Data Analysis and Visualization" : "Analisis dan Visualisasi Data",
+      semester: "3",
+      credits: "3",
+    },
+    {
+      code: "LAB401",
+      name: language === "en" ? "Independent Research Project" : "Proyek Penelitian Mandiri",
+      semester: "4",
+      credits: "6",
+    },
+  ];
+
+
+## Research Page
+const { language } = useLanguage();
+
+  const projects = [
+    {
+      title: language === "en" 
+        ? "Machine Learning for Medical Diagnosis" 
+        : "Pembelajaran Mesin untuk Diagnosis Medis",
+      leader: "Dr. Sarah Johnson",
+      status: "Ongoing",
+      year: "2024-2025",
+    },
+    {
+      title: language === "en"
+        ? "Quantum Algorithm Optimization"
+        : "Optimasi Algoritma Kuantum",
+      leader: "Prof. Emily Rodriguez",
+      status: "Ongoing",
+      year: "2024-2026",
+    },
+    {
+      title: language === "en"
+        ? "Genomic Data Analysis Platform"
+        : "Platform Analisis Data Genomik",
+      leader: "Dr. Michael Chen",
+      status: "Completed",
+      year: "2023-2024",
+    },
+  ];

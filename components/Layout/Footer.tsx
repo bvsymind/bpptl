@@ -51,7 +51,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-6 text-center text-sm text-muted-foreground">
           {/* © {currentYear} {t('labName')}. {t('footer.rights')} */}
-          © {currentYear} bvsymind | 22120024. {t('footer.rights')}
+          Power Gondang © {currentYear}. {t('footer.rights')}
         </div>
       </div>
     </footer>

@@ -99,6 +99,7 @@ export interface TeamMember {
   image: string;
   description?: string;
   email?: string;
+  year?: number;
 }
 
 interface TeamMemberModalProps {
@@ -133,6 +134,7 @@ const TeamMemberModal = ({ member, open, onOpenChange }: TeamMemberModalProps) =
               // [PERUBAHAN 3] Update 'sizes' agar sesuai layout baru
               sizes="(max-width: 639px) 90vw, 220px"
               className="object-cover"
+              unoptimized={true}
             />
           </div>
 

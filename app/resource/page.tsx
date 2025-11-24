@@ -16,35 +16,71 @@ const Resource = () => {
           url_download: "https://drive.usercontent.google.com/download?id=1sUOnkBA8NFNxBGYtj1wNMfa8uhdQxHdI&export=download&authuser=0",
           url_view: "https://drive.google.com/file/d/1sUOnkBA8NFNxBGYtj1wNMfa8uhdQxHdI/view"
         },
-        { title: "Module 2: Control Structures", url: "#" },
-        { title: "Module 3: Functions", url: "#" },
+        { title: "Module 2: Control Structures",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Functions",
+          url_download: "#",
+          url_view: "#"
+        }
       ],
     },
     {
       code: "PTEL6302",
       name: language === "en" ? "Basic Power System" : "Dasar Tenaga Listrik",
       modules: [
-        { title: "Module 1: Arrays and Lists", url: "#" },
-        { title: "Module 2: Trees and Graphs", url: "#" },
-        { title: "Module 3: Algorithms", url: "#" },
+        {
+          title: "Module 1: Arrays and Lists",
+          url_download: "#",
+          url_view: "#"
+        },
+        {
+          title: "Module 2: Trees and Graphs",
+          url_download: "#",
+          url_view: "#"
+        },
+        {
+          title: "Module 3: Algorithms",
+          url_download: "#",
+          url_view: "#"
+        },
       ],
     },
     {
       code: "PTEL6307",
       name: language === "en" ? "High Voltage Equipment and Engineering" : "Teknik dan Peralatan Tegangan Tinggi",
       modules: [
-        { title: "Module 1: Fundamentals", url: "#" },
-        { title: "Module 2: Neural Networks", url: "#" },
-        { title: "Module 3: Deep Learning", url: "#" },
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
       ],
     },
     {
       code: "PTEL6309",
       name: language === "en" ? "Illumination and Utilities Installation" : "Instalasi Pemanfaatan Tenaga Listrik dan Iluminasi",
       modules: [
-        { title: "Module 1: Fundamentals", url: "#" },
-        { title: "Module 2: Neural Networks", url: "#" },
-        { title: "Module 3: Deep Learning", url: "#" },
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
       ],
     },
     {
@@ -52,28 +88,36 @@ const Resource = () => {
       name: language === "en" ? "Electrical Machines" : "Mesin-Mesin Listrik",
       modules: [
         { title: language === "en" ? "Module 1: Single Phase Transformer" : "Modul 1: Trafo 1 Fasa",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 2: Three Phase Transformer" : "Modul 2: Trafo 3 Fasa",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 3: DC Generator" : "Modul 3: Generator DC",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 4: DC Motor" : "Modul 4: Motor DC",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 5: Induction Motor" : "Modul 5: Motor Induksi",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 6: Asynchronous Generator" : "Modul 6: Generator Asinkron",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 7: Synchronous Generator" : "Modul 7: Generator Sinkron",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
         { title: language === "en" ? "Module 8: Synchronous Motor" : "Modul 7: Motor Sinkron",
-          url: "#"
+          url_download: "#",
+          url_view: "#"
         },
       ],
     },
@@ -81,18 +125,36 @@ const Resource = () => {
       code: "PTEL6313",
       name: language === "en" ? "Power Electronics Drive and Converter" : "Konverter dan Pengumudian Elektronika Daya",
       modules: [
-        { title: "Module 1: Fundamentals", url: "#" },
-        { title: "Module 2: Neural Networks", url: "#" },
-        { title: "Module 3: Deep Learning", url: "#" },
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
       ],
     },
     {
       code: "PTEL6315",
       name: language === "en" ? "Analysis of Power System, Protection and Grounding" : "Sistem, Proteksi dan Pembumian Sistem Tenaga",
       modules: [
-        { title: "Module 1: Fundamentals", url: "#" },
-        { title: "Module 2: Neural Networks", url: "#" },
-        { title: "Module 3: Deep Learning", url: "#" },
+        { title: "Module 1: Fundamentals",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 2: Neural Networks",
+          url_download: "#",
+          url_view: "#"
+        },
+        { title: "Module 3: Deep Learning",
+          url_download: "#",
+          url_view: "#"
+        },
       ],
     },
   ];
