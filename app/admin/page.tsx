@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { getGoogleDriveDownloadUrl, getGoogleDriveViewUrl } from "@/lib/drive"
 import { 
   Loader2, 
   Plus, 
@@ -64,6 +65,8 @@ export default function AdminPage() {
   const [editingItem, setEditingItem] = useState<BaseItem | null>(null);
   const [formData, setFormData] = useState<BaseItem>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [moduleLoading, setModuleLoading] = useState<{ [key: number]: boolean }>({});
+
   
   // State Khusus
   const [activeYear, setActiveYear] = useState<string>("");
@@ -402,6 +405,36 @@ export default function AdminPage() {
     setImagePreview(URL.createObjectURL(file));
   };
 
+  const handleModuleSourceBlur = async (idx: number) => {
+    const sourceUrl = formData.resource_modules[idx]?.url_source;
+    if (!sourceUrl) return;
+
+    setModuleLoading(prev => ({ ...prev, [idx]: true }));
+
+    await new Promise(r => setTimeout(r, 500)); 
+
+    const url_download = getGoogleDriveDownloadUrl(sourceUrl);
+    const url_view = getGoogleDriveViewUrl(sourceUrl);
+
+    setFormData(prev => {
+      const updatedModules = [...(prev.resource_modules || [])];
+
+      if (updatedModules[idx]) {
+        updatedModules[idx] = { 
+          ...updatedModules[idx], 
+          url_download: url_download,
+          url_view: url_view
+        };
+      }
+      
+      return { ...prev, resource_modules: updatedModules };
+    });
+
+
+    setModuleLoading(prev => ({ ...prev, [idx]: false }));
+  };
+
+
 
 
   if (!authCheckComplete) return null;
@@ -468,6 +501,7 @@ export default function AdminPage() {
             <ImageUploadField preview={imagePreview} error={uploadError} onChange={handleImageUpload} />
           </>
         );
+
       case "resources":
         return (
           <>
@@ -489,6 +523,7 @@ export default function AdminPage() {
                     <button onClick={() => removeModule(idx)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500">
                       <Trash2 className="w-4 h-4" />
                     </button>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
                       <input 
                         className="p-2 border rounded text-sm" 
@@ -503,25 +538,60 @@ export default function AdminPage() {
                         onChange={(e) => handleModuleChange(idx, 'title_id', e.target.value)} 
                       />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2">
-                         <LinkIcon className="w-4 h-4 text-gray-400" />
-                         <input className="w-full p-2 border rounded text-sm" placeholder="URL Download" value={mod.url_download} onChange={(e) => handleModuleChange(idx, 'url_download', e.target.value)} />
-                      </div>
-                      <div className="flex items-center gap-2">
-                         <FileText className="w-4 h-4 text-gray-400" />
-                         <input className="w-full p-2 border rounded text-sm" placeholder="URL View (PDF)" value={mod.url_view} onChange={(e) => handleModuleChange(idx, 'url_view', e.target.value)} />
+
+                    {/* URL SUMBER (INPUT UTAMA) */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <LinkIcon className="w-4 h-4 text-gray-400" />
+                      <div className="relative w-full">
+                        <input 
+                          className="w-full p-2 border rounded text-sm pr-8" 
+                          placeholder="URL Sumber Google Drive"
+                          value={mod.url_source || ""}
+                          onChange={(e) => handleModuleChange(idx, 'url_source', e.target.value)}
+                          onBlur={() => handleModuleSourceBlur(idx)}
+                        />
+
+                        {moduleLoading[idx] && (
+                          <Loader2 className="w-4 h-4 animate-spin text-blue-500 absolute right-2 top-1/2 -translate-y-1/2" />
+                        )}
                       </div>
                     </div>
+
+                    {/* URL DOWNLOAD (DISABLED) */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <LinkIcon className="w-4 h-4 text-gray-400" />
+                      <input 
+                        className="w-full p-2 border rounded text-sm bg-gray-200"
+                        placeholder="URL Download"
+                        value={mod.url_download || ""}
+                        disabled
+                      />
+                    </div>
+
+                    {/* URL VIEW (DISABLED) */}
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-gray-400" />
+                      <input 
+                        className="w-full p-2 border rounded text-sm bg-gray-200"
+                        placeholder="URL View (PDF)"
+                        value={mod.url_view || ""}
+                        disabled
+                      />
+                    </div>
+
                   </div>
                 ))}
+
                 {formData.resource_modules?.length === 0 && (
-                   <div className="text-center p-4 text-gray-400 text-sm border border-dashed rounded">Belum ada modul.</div>
+                  <div className="text-center p-4 text-gray-400 text-sm border border-dashed rounded">
+                    Belum ada modul.
+                  </div>
                 )}
               </div>
             </div>
           </>
         );
+
       case "practicums":
         return (
           <>

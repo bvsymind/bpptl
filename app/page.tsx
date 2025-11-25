@@ -1,6 +1,6 @@
 "use client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/public/images/guwe.jpg";
+import heroImage from "@/public/images/hero-image.webp";
 import headPhoto from "@/public/images/dr-susatyo-handoko.webp";
 import Image from "next/image";
 
