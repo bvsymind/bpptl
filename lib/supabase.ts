@@ -82,3 +82,64 @@ export const fetchActiveYear = async () => {
 
   return Number(data.value); // Kembalikan sebagai angka (misal: 2024)
 };
+
+// Tambahkan di file lib/supabase.ts
+
+export const fetchResources = async () => {
+  // Select resources beserta resource_modules di dalamnya (Join)
+  const { data, error } = await supabase
+    .from('resources')
+    .select('*, resource_modules(*)')
+    .order('id', { ascending: true }); // Urutkan mata kuliah berdasarkan ID
+
+  if (error) {
+    console.error("Error fetching resources:", error);
+    return [];
+  }
+
+  // Kita perlu mengurutkan modules di dalam setiap course (misal berdasarkan ID)
+  // Karena defaultnya urutan dari join tidak terjamin
+  const sortedData = data.map((course) => ({
+    ...course,
+    resource_modules: (course.resource_modules || []).sort((a: any, b: any) => a.id - b.id)
+  }));
+
+  return sortedData;
+};
+
+// Tambahkan di lib/supabase.ts
+
+export const fetchPracticums = async () => {
+  const { data, error } = await supabase
+    .from('practicums')
+    .select(`
+      *,
+      practicum_modules (
+        *,
+        module_assistants (*)
+      )
+    `)
+    .order('code', { ascending: true }); // Urutkan berdasarkan Kode
+
+  if (error) {
+    console.error("Error fetching practicums:", error);
+    return [];
+  }
+
+  // Sorting manual untuk nested data agar rapi
+  const sortedData = data.map((prac: any) => {
+    // Sort Modules by ID
+    const sortedModules = (prac.practicum_modules || []).sort((a: any, b: any) => a.id - b.id);
+    
+    // Sort Assistants inside Modules
+    sortedModules.forEach((mod: any) => {
+      if (mod.module_assistants) {
+        mod.module_assistants.sort((a: any, b: any) => a.id - b.id);
+      }
+    });
+
+    return { ...prac, practicum_modules: sortedModules };
+  });
+
+  return sortedData;
+};

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { getGoogleDriveDownloadUrl, getGoogleDriveViewUrl } from "@/lib/drive"
 import { 
   Loader2, 
   Plus, 
@@ -65,8 +64,6 @@ export default function AdminPage() {
   const [editingItem, setEditingItem] = useState<BaseItem | null>(null);
   const [formData, setFormData] = useState<BaseItem>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [moduleLoading, setModuleLoading] = useState<{ [key: number]: boolean }>({});
-
   
   // State Khusus
   const [activeYear, setActiveYear] = useState<string>("");
@@ -78,7 +75,7 @@ export default function AdminPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // ==========================================
-  // 1. LOGIC AUTH & SESSION (Tidak Berubah)
+  // 1. LOGIC AUTH & SESSION
   // ==========================================
   const updateActivity = useCallback(() => {
     if (isAuthenticated) {
@@ -164,7 +161,7 @@ export default function AdminPage() {
 
 
   // ==========================================
-  // 2. LOGIC CMS (UPDATED FOR RESOURCES)
+  // 2. LOGIC CMS
   // ==========================================
 
   const fetchData = async () => {
@@ -173,12 +170,14 @@ export default function AdminPage() {
     
     let query = supabase.from(activeTab).select("*");
 
-    // KHUSUS RESOURCES: Ambil juga module-nya
     if (activeTab === "resources") {
       query = supabase.from(activeTab).select("*, resource_modules(*)");
+    } 
+    else if (activeTab === "practicums") {
+      // Ambil Praktikum -> Modul -> Asisten
+      query = supabase.from(activeTab).select("*, practicum_modules(*, module_assistants(*))");
     }
 
-    // Sort Logic
     if (activeTab === 'students') {
       query = query.order('year', { ascending: false });
     } else {
@@ -189,10 +188,18 @@ export default function AdminPage() {
 
     if (error) console.error("Fetch error:", error);
     else {
-      // Sort Modules jika ada (supaya rapi by ID)
+      // Sort Nested Data Manual agar rapi
       const processedData = data?.map(item => {
+        // Sort Resource Modules
         if (item.resource_modules) {
           item.resource_modules.sort((a: any, b: any) => a.id - b.id);
+        }
+        // Sort Practicum Modules & Assistants
+        if (item.practicum_modules) {
+          item.practicum_modules.sort((a: any, b: any) => a.id - b.id);
+          item.practicum_modules.forEach((mod: any) => {
+             if (mod.module_assistants) mod.module_assistants.sort((a: any, b: any) => a.id - b.id);
+          });
         }
         return item;
       });
@@ -229,11 +236,14 @@ export default function AdminPage() {
   const openModal = (item: BaseItem | null = null) => {
     setEditingItem(item);
     
-    // Deep copy object agar tidak merubah state items langsung
-    // Dan pastikan resource_modules ada array kosong jika null
+    // Deep Copy & Init Empty Arrays for Nested Data
     const initialData = item ? JSON.parse(JSON.stringify(item)) : {};
+    
     if (activeTab === 'resources' && !initialData.resource_modules) {
       initialData.resource_modules = [];
+    }
+    if (activeTab === 'practicums' && !initialData.practicum_modules) {
+      initialData.practicum_modules = [];
     }
     
     setFormData(initialData);
@@ -247,53 +257,79 @@ export default function AdminPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // --- LOGIC KHUSUS MODULES (Resource) ---
+  // --- LOGIC NESTED FORM HANDLERS ---
   
+  // 1. Resource Modules
   const handleModuleChange = (index: number, field: string, value: string) => {
-    const updatedModules = [...(formData.resource_modules || [])];
-    updatedModules[index] = { ...updatedModules[index], [field]: value };
-    setFormData(prev => ({ ...prev, resource_modules: updatedModules }));
+    const updated = [...(formData.resource_modules || [])];
+    updated[index] = { ...updated[index], [field]: value };
+    setFormData(prev => ({ ...prev, resource_modules: updated }));
   };
-
   const addModule = () => {
     setFormData(prev => ({
       ...prev,
-      resource_modules: [
-        ...(prev.resource_modules || []),
-        { title_en: "", title_id: "", url_download: "", url_view: "" } // New Draft Module
-      ]
+      resource_modules: [...(prev.resource_modules || []), { title_en: "", title_id: "", url_download: "", url_view: "" }]
     }));
   };
-
   const removeModule = async (index: number) => {
-    const moduleToDelete = formData.resource_modules[index];
-    
-    // Jika module sudah ada di database (punya ID), hapus langsung dari DB
-    if (moduleToDelete.id) {
-      const confirm = window.confirm("Hapus modul ini permanen?");
-      if (!confirm) return;
-
-      const { error } = await supabase.from('resource_modules').delete().eq('id', moduleToDelete.id);
-      if (error) {
-        alert("Gagal menghapus modul: " + error.message);
-        return;
-      }
-    }
-
-    // Hapus dari state UI
-    const updatedModules = [...formData.resource_modules];
-    updatedModules.splice(index, 1);
-    setFormData(prev => ({ ...prev, resource_modules: updatedModules }));
+    const mod = formData.resource_modules[index];
+    if (mod.id && window.confirm("Hapus modul ini?")) await supabase.from('resource_modules').delete().eq('id', mod.id);
+    const updated = [...formData.resource_modules];
+    updated.splice(index, 1);
+    setFormData(prev => ({ ...prev, resource_modules: updated }));
   };
 
-  // --- LOGIC SAVE UTAMA ---
+  // 2. Practicum Modules & Assistants
+  const addPracticumModule = () => {
+    setFormData(prev => ({
+      ...prev,
+      practicum_modules: [...(prev.practicum_modules || []), { title: "", module_assistants: [] }]
+    }));
+  };
+  const handlePracticumModuleChange = (index: number, field: string, value: string) => {
+    const updated = [...(formData.practicum_modules || [])];
+    updated[index] = { ...updated[index], [field]: value };
+    setFormData(prev => ({ ...prev, practicum_modules: updated }));
+  };
+  const removePracticumModule = async (index: number) => {
+    const mod = formData.practicum_modules[index];
+    if (mod.id && window.confirm("Hapus modul & asisten terkait?")) await supabase.from('practicum_modules').delete().eq('id', mod.id);
+    const updated = [...formData.practicum_modules];
+    updated.splice(index, 1);
+    setFormData(prev => ({ ...prev, practicum_modules: updated }));
+  };
+  const addAssistant = (mIdx: number) => {
+    const updated = [...(formData.practicum_modules || [])];
+    if (!updated[mIdx].module_assistants) updated[mIdx].module_assistants = [];
+    updated[mIdx].module_assistants.push({ name: "", phone: "" });
+    setFormData(prev => ({ ...prev, practicum_modules: updated }));
+  };
+  const handleAssistantChange = (mIdx: number, aIdx: number, field: string, value: string) => {
+    const updated = [...formData.practicum_modules];
+    updated[mIdx].module_assistants[aIdx][field] = value;
+    setFormData(prev => ({ ...prev, practicum_modules: updated }));
+  };
+  const removeAssistant = async (mIdx: number, aIdx: number) => {
+    const updated = [...formData.practicum_modules];
+    const assistant = updated[mIdx].module_assistants[aIdx];
+    if (assistant.id) await supabase.from('module_assistants').delete().eq('id', assistant.id);
+    updated[mIdx].module_assistants.splice(aIdx, 1);
+    setFormData(prev => ({ ...prev, practicum_modules: updated }));
+  };
+
+
+  // --- LOGIC SAVE UTAMA (The Critical Part) ---
 
   const handleSave = async () => {
     setIsSaving(true);
     
+    // A. CLONE & SANITIZE PARENT DATA
     const sanitizedData = { ...formData };
-    
-    // 1. UPLOAD FOTO (Jika ada)
+    Object.keys(sanitizedData).forEach(key => {
+      if (typeof sanitizedData[key] === 'string') sanitizedData[key] = sanitizedData[key].trim();
+    });
+
+    // B. UPLOAD PHOTO (If Any)
     if (selectedFile) {
       let folderPath = "others";
       if (activeTab === "students") {
@@ -309,29 +345,23 @@ export default function AdminPage() {
       const fullPath = `${folderPath}/${timestamp}-${sanitizedFileName}`;
 
       const { error: uploadError } = await supabase.storage.from('team-photos').upload(fullPath, selectedFile);
-      if (uploadError) {
-        alert(`Gagal upload: ${uploadError.message}`); setIsSaving(false); return;
-      }
+      if (uploadError) { alert(`Gagal upload: ${uploadError.message}`); setIsSaving(false); return; }
       
       const { data: publicUrlData } = supabase.storage.from('team-photos').getPublicUrl(fullPath);
       sanitizedData.image_url = publicUrlData.publicUrl;
     }
 
-    // 2. SIMPAN DATA PARENT
-    // Kita pisahkan data anak (modules) dari data parent (resource) agar tidak error saat upsert parent
-    const modulesToSave = sanitizedData.resource_modules; // Simpan dulu
-    if (activeTab === 'resources') {
-        delete sanitizedData.resource_modules; // Hapus dari objek parent
-    }
+    // C. PISAHKAN DATA NESTED (PENTING!)
+    const modulesToSave = (activeTab === 'resources') ? sanitizedData.resource_modules : 
+                          (activeTab === 'practicums') ? sanitizedData.practicum_modules : null;
+
+    // !!! HAPUS DATA NESTED DARI PARENT OBJECT AGAR TIDAK ERROR !!!
+    if (activeTab === 'resources') delete sanitizedData.resource_modules;
+    else if (activeTab === 'practicums') delete sanitizedData.practicum_modules;
 
     if (!editingItem) delete sanitizedData.id;
 
-    // Sanitasi String Parent
-    Object.keys(sanitizedData).forEach(key => {
-      if (typeof sanitizedData[key] === 'string') sanitizedData[key] = sanitizedData[key].trim();
-    });
-
-    // Upsert Parent
+    // D. SIMPAN DATA PARENT (UPSERT)
     const { data: savedParent, error } = await supabase
         .from(activeTab)
         .upsert(sanitizedData)
@@ -344,32 +374,67 @@ export default function AdminPage() {
       return;
     }
 
-    // 3. SIMPAN DATA MODULES (KHUSUS RESOURCE)
+    // E. SIMPAN DATA CHILDREN (NESTED)
+    
+    // --- 1. RESOURCES LOGIC (Split Insert/Update) ---
     if (activeTab === 'resources' && modulesToSave && savedParent) {
       const parentId = savedParent.id;
-      
-      // Siapkan array modules dengan resource_id yang benar
-      const modulesPayload = modulesToSave.map((mod: any) => {
+      const newModules: any[] = [];
+      const existingModules: any[] = [];
+
+      modulesToSave.forEach((mod: any) => {
         const cleanMod = {
            resource_id: parentId,
-           title_en: mod.title_en,
-           title_id: mod.title_id,
-           url_download: mod.url_download,
-           url_view: mod.url_view
+           title_en: mod.title_en || "",
+           title_id: mod.title_id || "",
+           url_download: mod.url_download || "",
+           url_view: mod.url_view || ""
         };
-        // Jika modul punya ID (edit), sertakan ID. Jika baru, jangan sertakan ID.
-        if (mod.id) (cleanMod as any).id = mod.id;
-        return cleanMod;
+        if (mod.id) { (cleanMod as any).id = mod.id; existingModules.push(cleanMod); }
+        else { newModules.push(cleanMod); }
       });
 
-      if (modulesPayload.length > 0) {
-          const { error: modError } = await supabase
-            .from('resource_modules')
-            .upsert(modulesPayload);
-          
-          if (modError) alert(`Data utama tersimpan, tapi gagal simpan modul: ${modError.message}`);
-      }
+      if (existingModules.length > 0) await supabase.from('resource_modules').upsert(existingModules);
+      if (newModules.length > 0) await supabase.from('resource_modules').insert(newModules);
     }
+
+    // --- 2. PRACTICUMS LOGIC (Sequential Loop) ---
+    if (activeTab === 'practicums' && modulesToSave && savedParent) {
+        for (const mod of modulesToSave) {
+           // Simpan Modul
+           const modulePayload = {
+              practicum_id: savedParent.id,
+              title: mod.title,
+              id: mod.id // Sertakan ID jika update
+           };
+           if (!modulePayload.id) delete modulePayload.id; // Insert baru (ID Auto)
+ 
+           const { data: savedModule, error: modError } = await supabase
+              .from('practicum_modules')
+              .upsert(modulePayload)
+              .select()
+              .single();
+           
+           if (modError) { console.error("Error saving module", modError); continue; }
+ 
+           // Simpan Asisten untuk Modul ini
+           if (mod.module_assistants && mod.module_assistants.length > 0) {
+              const assistantsPayload = mod.module_assistants.map((asp: any) => {
+                 const cleanAsp = {
+                    module_id: savedModule.id,
+                    name: asp.name,
+                    phone: asp.phone,
+                    id: asp.id
+                 };
+                 if(!cleanAsp.id) delete cleanAsp.id; 
+                 return cleanAsp;
+              });
+ 
+              const { error: assError } = await supabase.from('module_assistants').upsert(assistantsPayload);
+              if (assError) console.error("Error saving assistants", assError);
+           }
+        }
+     }
 
     setIsModalOpen(false);
     fetchData();
@@ -405,38 +470,10 @@ export default function AdminPage() {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const handleModuleSourceBlur = async (idx: number) => {
-    const sourceUrl = formData.resource_modules[idx]?.url_source;
-    if (!sourceUrl) return;
 
-    setModuleLoading(prev => ({ ...prev, [idx]: true }));
-
-    await new Promise(r => setTimeout(r, 500)); 
-
-    const url_download = getGoogleDriveDownloadUrl(sourceUrl);
-    const url_view = getGoogleDriveViewUrl(sourceUrl);
-
-    setFormData(prev => {
-      const updatedModules = [...(prev.resource_modules || [])];
-
-      if (updatedModules[idx]) {
-        updatedModules[idx] = { 
-          ...updatedModules[idx], 
-          url_download: url_download,
-          url_view: url_view
-        };
-      }
-      
-      return { ...prev, resource_modules: updatedModules };
-    });
-
-
-    setModuleLoading(prev => ({ ...prev, [idx]: false }));
-  };
-
-
-
-
+  // ==========================================
+  // 3. RENDER UI
+  // ==========================================
   if (!authCheckComplete) return null;
 
   if (!isAuthenticated) {
@@ -501,7 +538,6 @@ export default function AdminPage() {
             <ImageUploadField preview={imagePreview} error={uploadError} onChange={handleImageUpload} />
           </>
         );
-
       case "resources":
         return (
           <>
@@ -523,83 +559,96 @@ export default function AdminPage() {
                     <button onClick={() => removeModule(idx)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500">
                       <Trash2 className="w-4 h-4" />
                     </button>
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
-                      <input 
-                        className="p-2 border rounded text-sm" 
-                        placeholder="Title (English)" 
-                        value={mod.title_en} 
-                        onChange={(e) => handleModuleChange(idx, 'title_en', e.target.value)} 
-                      />
-                      <input 
-                        className="p-2 border rounded text-sm" 
-                        placeholder="Judul (Indonesia)" 
-                        value={mod.title_id} 
-                        onChange={(e) => handleModuleChange(idx, 'title_id', e.target.value)} 
-                      />
+                      <input className="p-2 border rounded text-sm" placeholder="Title (English)" value={mod.title_en} onChange={(e) => handleModuleChange(idx, 'title_en', e.target.value)} />
+                      <input className="p-2 border rounded text-sm" placeholder="Judul (Indonesia)" value={mod.title_id} onChange={(e) => handleModuleChange(idx, 'title_id', e.target.value)} />
                     </div>
-
-                    {/* URL SUMBER (INPUT UTAMA) */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <LinkIcon className="w-4 h-4 text-gray-400" />
-                      <div className="relative w-full">
-                        <input 
-                          className="w-full p-2 border rounded text-sm pr-8" 
-                          placeholder="URL Sumber Google Drive"
-                          value={mod.url_source || ""}
-                          onChange={(e) => handleModuleChange(idx, 'url_source', e.target.value)}
-                          onBlur={() => handleModuleSourceBlur(idx)}
-                        />
-
-                        {moduleLoading[idx] && (
-                          <Loader2 className="w-4 h-4 animate-spin text-blue-500 absolute right-2 top-1/2 -translate-y-1/2" />
-                        )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2">
+                         <LinkIcon className="w-4 h-4 text-gray-400" />
+                         <input className="w-full p-2 border rounded text-sm" placeholder="URL Download" value={mod.url_download} onChange={(e) => handleModuleChange(idx, 'url_download', e.target.value)} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                         <FileText className="w-4 h-4 text-gray-400" />
+                         <input className="w-full p-2 border rounded text-sm" placeholder="URL View (PDF)" value={mod.url_view} onChange={(e) => handleModuleChange(idx, 'url_view', e.target.value)} />
                       </div>
                     </div>
-
-                    {/* URL DOWNLOAD (DISABLED) */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <LinkIcon className="w-4 h-4 text-gray-400" />
-                      <input 
-                        className="w-full p-2 border rounded text-sm bg-gray-200"
-                        placeholder="URL Download"
-                        value={mod.url_download || ""}
-                        disabled
-                      />
-                    </div>
-
-                    {/* URL VIEW (DISABLED) */}
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-gray-400" />
-                      <input 
-                        className="w-full p-2 border rounded text-sm bg-gray-200"
-                        placeholder="URL View (PDF)"
-                        value={mod.url_view || ""}
-                        disabled
-                      />
-                    </div>
-
                   </div>
                 ))}
-
-                {formData.resource_modules?.length === 0 && (
-                  <div className="text-center p-4 text-gray-400 text-sm border border-dashed rounded">
-                    Belum ada modul.
-                  </div>
-                )}
               </div>
             </div>
           </>
         );
-
       case "practicums":
         return (
           <>
-            <InputField label="Kode" field="code" value={formData.code} onChange={handleInputChange} />
-            <InputField label="Nama (EN)" field="name_en" value={formData.name_en} onChange={handleInputChange} />
-            <InputField label="Nama (ID)" field="name_id" value={formData.name_id} onChange={handleInputChange} />
-            <InputField label="Semester" field="semester" value={formData.semester} onChange={handleInputChange} type="number" />
-            <InputField label="SKS" field="credits" value={formData.credits} onChange={handleInputChange} type="number" />
+            <div className="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100">
+                <h4 className="font-bold text-blue-800 mb-3 border-b border-blue-200 pb-2">Informasi Umum</h4>
+                <div className="grid grid-cols-2 gap-4">
+                <InputField label="Kode" field="code" value={formData.code} onChange={handleInputChange} />
+                <InputField label="Semester" field="semester" value={formData.semester} onChange={handleInputChange} />
+                </div>
+                <InputField label="Nama (EN)" field="name_en" value={formData.name_en} onChange={handleInputChange} />
+                <InputField label="Nama (ID)" field="name_id" value={formData.name_id} onChange={handleInputChange} />
+                <InputField label="SKS" field="credits" value={formData.credits} onChange={handleInputChange} />
+                <InputField label="Deskripsi (EN)" field="description_en" value={formData.description_en} onChange={handleInputChange} textarea />
+                <InputField label="Deskripsi (ID)" field="description_id" value={formData.description_id} onChange={handleInputChange} textarea />
+            </div>
+
+            <div className="bg-orange-50 p-4 rounded-lg mb-6 border border-orange-100">
+                <h4 className="font-bold text-orange-800 mb-3 border-b border-orange-200 pb-2">Koordinator</h4>
+                <div className="grid grid-cols-2 gap-4">
+                <InputField label="Nama Koordinator" field="coordinator_name" value={formData.coordinator_name} onChange={handleInputChange} />
+                <InputField label="No. HP Koordinator" field="coordinator_phone" value={formData.coordinator_phone} onChange={handleInputChange} />
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                <InputField label="Nama Wakil (Opsional)" field="vice_coordinator_name" value={formData.vice_coordinator_name} onChange={handleInputChange} />
+                <InputField label="No. HP Wakil" field="vice_coordinator_phone" value={formData.vice_coordinator_phone} onChange={handleInputChange} />
+                </div>
+            </div>
+
+            <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-4">
+                <h4 className="font-bold text-gray-800 text-lg">Modul & Asisten</h4>
+                <button onClick={addPracticumModule} className="text-xs bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 flex items-center gap-1">
+                    <Plus className="w-3 h-3" /> Tambah Modul
+                </button>
+                </div>
+
+                <div className="space-y-6">
+                {formData.practicum_modules?.map((mod: any, mIdx: number) => (
+                    <div key={mIdx} className="border rounded-lg p-4 bg-gray-50 relative">
+                    <button onClick={() => removePracticumModule(mIdx)} className="absolute top-2 right-2 text-gray-400 hover:text-red-600">
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                    
+                    <div className="mb-4">
+                        <label className="text-xs font-bold uppercase text-gray-500 block mb-1">Nama Modul</label>
+                        <input className="w-full p-2 border rounded font-semibold" placeholder="Contoh: Modul 1" value={mod.title} onChange={(e) => handlePracticumModuleChange(mIdx, 'title', e.target.value)} />
+                    </div>
+
+                    <div className="bg-white p-3 rounded border">
+                        <div className="flex justify-between items-center mb-2">
+                        <label className="text-xs font-bold text-gray-500">Daftar Asisten</label>
+                        <button onClick={() => addAssistant(mIdx)} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                            <Plus className="w-3 h-3" /> Tambah Asprak
+                        </button>
+                        </div>
+                        
+                        <div className="space-y-2">
+                        {mod.module_assistants?.map((asprak: any, aIdx: number) => (
+                            <div key={aIdx} className="flex gap-2 items-center">
+                                <input className="flex-1 p-1.5 border rounded text-sm" placeholder="Nama Asprak" value={asprak.name} onChange={(e) => handleAssistantChange(mIdx, aIdx, 'name', e.target.value)} />
+                                <input className="w-1/3 p-1.5 border rounded text-sm" placeholder="No. HP" value={asprak.phone} onChange={(e) => handleAssistantChange(mIdx, aIdx, 'phone', e.target.value)} />
+                                <button onClick={() => removeAssistant(mIdx, aIdx)} className="text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                    </div>
+                ))}
+                </div>
+            </div>
           </>
         );
       case "research_projects":
@@ -618,7 +667,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-      {/* HEADER */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -633,7 +681,6 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-wrap gap-2 mb-8 border-b pb-4">
           {["staff", "lecturers", "students", "resources", "practicums", "research_projects"].map((tab) => (
@@ -659,7 +706,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* LIST */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-800 capitalize">Manage {activeTab.replace('_', ' ')}</h2>
           <button onClick={() => openModal(null)} className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm">
@@ -684,7 +730,9 @@ export default function AdminPage() {
                   <div>
                     <h3 className="font-medium text-gray-900">{item.name || item.name_en || item.title_en || "Item"}</h3>
                     <p className="text-xs text-gray-500">
-                      {activeTab === 'resources' ? `${item.code} • ${item.resource_modules?.length || 0} Modules` : item.role || item.code || item.year}
+                      {activeTab === 'resources' ? `${item.code} • ${item.resource_modules?.length || 0} Modules` : 
+                       activeTab === 'practicums' ? `${item.code} • ${item.practicum_modules?.length || 0} Modules` : 
+                       item.role || item.code || item.year}
                     </p>
                   </div>
                 </div>
@@ -697,7 +745,6 @@ export default function AdminPage() {
         )}
       </main>
 
-      {/* MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl my-8 relative animate-in fade-in zoom-in duration-200">
@@ -727,10 +774,10 @@ export default function AdminPage() {
 }
 
 // --- HELPER COMPONENTS ---
-const InputField = ({ label, field, value, onChange, type = "text", textarea = false }: any) => (
+const InputField = ({ label, field, value, onChange, type = "text", textarea = false, placeholder = "" }: any) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">{label || field}</label>
-    {textarea ? <textarea className="w-full p-2 border rounded-md" value={value || ""} onChange={(e) => onChange(field, e.target.value)} /> : <input type={type} className="w-full p-2 border rounded-md" value={value || ""} onChange={(e) => onChange(field, e.target.value)} />}
+    {textarea ? <textarea className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all min-h-[100px]" value={value || ""} onChange={(e) => onChange(field, e.target.value)} placeholder={placeholder} /> : <input type={type} className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all" value={value || ""} onChange={(e) => onChange(field, e.target.value)} placeholder={placeholder} />}
   </div>
 );
 
@@ -744,14 +791,7 @@ const ImageUploadField = ({ preview, error, onChange }: any) => (
       <div className="flex-1">
         <input type="file" accept="image/webp" onChange={onChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
         {error && <div className="mt-2 p-2 bg-red-100 border border-red-200 text-red-700 text-xs rounded flex items-center gap-2"><AlertCircle className="w-4 h-4" /> {error}</div>}
-        <div className="mt-3 text-xs text-gray-500">
-          <p className="font-semibold mb-1">Syarat Foto:</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Ukuran maksimal <strong>1 MB</strong></li>
-            <li>Format wajib <strong>.webp</strong></li>
-            <li>Rasio aspek disarankan <strong>3:4</strong> (Portrait)</li>
-          </ul>
-        </div>
+        <div className="mt-3 text-xs text-gray-500"><p className="font-semibold mb-1">Syarat Foto:</p><ul className="list-disc list-inside space-y-1"><li>Max <strong>1 MB</strong></li><li>Wajib <strong>.webp</strong></li><li>Rasio <strong>3:4</strong></li></ul></div>
       </div>
     </div>
   </div>

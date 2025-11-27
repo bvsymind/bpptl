@@ -1,11 +1,3 @@
-// export const getGoogleDriveImageUrl = (url: string): string => {
-//   const id = url.match(/[-\w]{25,}/)?.[0];
-//   return id
-//     ? `https://drive.usercontent.google.com/download?id=${id}`
-//     : url;
-// };
-
-
 const extractDriveId = (url: string): string | null => {
   return url.match(/[-\w]{25,}/)?.[0] ?? null;
 };
