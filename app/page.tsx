@@ -2,6 +2,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImage from "@/public/images/hero-image.webp";
 import headPhoto from "@/public/images/dr-susatyo-handoko.webp";
+import headPhoto2 from "@/public/images/pak-karnoto.webp";
 import Image from "next/image";
 
 export default function App() {
@@ -14,7 +15,7 @@ export default function App() {
         language === "en"
           ? "Focuses on the design of power plants, including new and renewable energy, as well as energy optimization, operation, and efficiency."
           : "Fokus pada perancangan pembangkit tenaga listrik, termasuk energi baru terbarukan, serta optimasi, operasi, dan efisiensi energi.",
-      imageUrl: "https://www.electropages.com/storage/app/media/2024/Jan/power-electronics-components-og.jpg"
+      imageUrl: "https://wkxjpaanpxruogugvpgq.supabase.co/storage/v1/object/public/team-photos/power-plant.webp"
     },
     {
       title: language === "en" ? "Transmission and Distribution Systems" : "Sistem Transmisi dan Distribusi",
@@ -22,7 +23,7 @@ export default function App() {
       language === "en"
       ? "Covers the design of power delivery infrastructure, including AC/DC transmission lines, substations, distribution systems, and power cables."
       : "Mempelajari desain infrastruktur penyaluran daya, meliputi saluran transmisi (AC/DC), gardu induk, sistem distribusi, dan perancangan kabel.",
-      imageUrl: "https://cdn.cadfem.net/v7/https://www.cadfem.net/media/catalog/product/cache/233cda5fa0c545555c13f82916db8bef/m/o/motorcad_cadfem_seminar_17844.jpg"
+      imageUrl: "https://wkxjpaanpxruogugvpgq.supabase.co/storage/v1/object/public/team-photos/transmission-and-distribution.webp"
     },
     {
       title:
@@ -33,7 +34,7 @@ export default function App() {
       language === "en"
       ? "Deep dive into the design of components and protection systems operating at high voltages, such as insulators, lightning protection, and other HV applications."
       : "Mendalami perancangan komponen dan sistem proteksi yang beroperasi pada tegangan tinggi, seperti isolator, proteksi petir, dan aplikasi HV lainnya.",
-      imageUrl: "https://www.parker.com/content/dam/parker/na/united-states/industries/power-generation/TransmissionDistribution-Overview-lg-resize-crop2.jpg"
+      imageUrl: "https://wkxjpaanpxruogugvpgq.supabase.co/storage/v1/object/public/team-photos/high-voltage.webp"
     },
     {
       title:
@@ -44,7 +45,7 @@ export default function App() {
       language === "en"
       ? "Involves the analysis and modeling of power systems using computation, AI, and the design of specific applications like electrical machines, traction systems, and power quality."
       : "Meliputi analisis dan pemodelan sistem tenaga menggunakan komputasi, AI, serta perancangan aplikasi spesifik seperti mesin listrik, sistem traksi, dan kualitas daya.",
-      imageUrl: "https://www.evansonline.com/hs-fs/hubfs/2020%20Hero%20Image%20updates/1280x499-Power-Generation-hero.jpg?width=662&name=1280x499-Power-Generation-hero.jpg"
+      imageUrl: "https://wkxjpaanpxruogugvpgq.supabase.co/storage/v1/object/public/team-photos/power-system-analysis.webp"
     },
   ];
 
@@ -156,7 +157,7 @@ export default function App() {
               {/* image div */}
               <div className="order-first relative aspect-3/4 w-full max-w-3xs justify-self-center md:justify-self-start">
                 <Image
-                  src="https://tli.vokasi.undip.ac.id/wp-content/uploads/2025/10/xPak-Karnoto.webp.pagespeed.ic.k6U2wkmcqu.webp"
+                  src={headPhoto2}
                   alt="Head of Laboratory"
                   fill
                   className="object-cover rounded-lg border border-border shadow-lg"

@@ -43,8 +43,8 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-3">{t('footer.contact')}</h3>
             <p className="text-sm text-muted-foreground">
-              Email: bpptl@elektro.undip.ac.id<br />
-              Phone: +62 123 4567 890
+              Email: bpptleundip@gmail.com<br />
+              Phone: +62 816-1753-5170
             </p>
           </div>
         </div>
